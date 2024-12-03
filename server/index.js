@@ -11,11 +11,31 @@ app.use(cors());
 
 const io = new Server(server);
 
+const userSocketMap = {};
+
+//getAllConnected Users
+const getAllConnectedClients = (roomId) => {
+  return Array.from(io.sockets.adapter.rooms.get(roomId) || []).map(
+    (socketId) => {
+      return {
+        socketId,
+        username: userSocketMap[socketId],
+      };
+    }
+  );
+};
+
 io.on("connection", (socket) => {
   console.log(`user joined ${socket.id}`);
   socket.on("join", ({ roomId, username }) => {
     // console.log("Room ID :",roomId);
     // console.log("Username :",username);
+    userSocketMap[socket.id] = username;
+    socket.join(roomId);
+
+    //get info of all users connected at particular room Id
+    const clients = getAllConnectedClients(roomId);
+    // console.log(clients);
   });
 });
 
