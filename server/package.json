@@ -1,0 +1,16 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "code collab backend",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "malik",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.6",
+    "express": "^4.21.1",
+    "socket.io": "^4.8.1"
+  }
+}

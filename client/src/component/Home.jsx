@@ -4,6 +4,8 @@ import { v4 as uuidv4 } from "uuid";
 import { useNavigate } from "react-router-dom";
 
 function Home() {
+  // const URL = import.meta.env.VITE_BACKEND_URL;
+  // console.log(URL);
   const [roomId, setRoomId] = useState("");
   const [username, setUsername] = useState("");
   const navigate = useNavigate();
