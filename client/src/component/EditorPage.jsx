@@ -8,8 +8,10 @@ import {
   useNavigate,
   Navigate,
 } from "react-router-dom";
+import toast from "react-hot-toast";
 
 function EditorPage() {
+  const [clients, setClient] = useState([]);
   const naviagte = useNavigate();
   const location = useLocation();
   // socket connection
@@ -30,14 +32,31 @@ function EditorPage() {
         roomId,
         username: location.state?.username,
       });
+
+      // listening socket on -> how are currently joined in
+      socketRef.current.on("joined", ({ clients, username, socketId }) => {
+        if (username !== location.state?.username) {
+          toast.success(`${username} joined`);
+        }
+        setClient(clients);
+      });
+
+      //listening user disconnected
+      socketRef.current.on("disconnected", ({ socketId, username }) => {
+        toast.success(`${username} left the room`);
+        setClient((prev) => {
+          return prev.filter((client) => client.socketId != socketId);
+        });
+      });
     };
     init();
-  }, []);
 
-  const [clients, setClient] = useState([
-    { socketId: 1, username: "Malik" },
-    { socketId: 2, username: "Owais" },
-  ]);
+    return () => {
+      socketRef.current.disconnect();
+      socketRef.current.off("joined");
+      socketRef.current.off("disconnected");
+    };
+  }, []);
 
   if (!location.state) {
     return <Navigate to="/" />;
@@ -75,7 +94,7 @@ function EditorPage() {
 
         {/* Editor Section */}
         <div className="col-md-10 d-flex flex-column text-light h-100">
-          <Editor />
+          <Editor socketRef={socketRef} roomId={roomId} />
         </div>
       </div>
     </div>
