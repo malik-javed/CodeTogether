@@ -53,9 +53,9 @@ io.on("connection", (socket) => {
   });
 
   // when new user join in between the user will get the previous all code
-  //   socket.on("sync-code", ({ socketId, code }) => {
-  //     io.to(socketId).emit("sync-code", { code });
-  //   });
+  socket.on("sync-code", ({ socketId, code }) => {
+    io.to(socketId).emit("code-change", { code });
+  });
 
   // leave room -> user disconnected
   socket.on("disconnecting", () => {

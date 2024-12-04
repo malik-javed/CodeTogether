@@ -16,6 +16,7 @@ function EditorPage() {
   const location = useLocation();
   // socket connection
   const socketRef = useRef(null);
+  const codeRef = useRef(null);
   const { roomId } = useParams();
   console.log(roomId);
   useEffect(() => {
@@ -39,6 +40,12 @@ function EditorPage() {
           toast.success(`${username} joined`);
         }
         setClient(clients);
+
+        // display the previous code to the newly joined users
+        socketRef.current.emit("sync-code", {
+          code: codeRef.current,
+          socketId,
+        });
       });
 
       //listening user disconnected
@@ -61,6 +68,23 @@ function EditorPage() {
   if (!location.state) {
     return <Navigate to="/" />;
   }
+
+  // copy room id
+  const copyRoomId = async () => {
+    try {
+      await navigator.clipboard.writeText(roomId);
+      toast.success("Room ID copied");
+    } catch (err) {
+      toast.error("unable to copy room id");
+    }
+  };
+
+  // leave room
+  const leaveRoom = async () => {
+    naviagte("/");
+    toast.success("Room leaved");
+  };
+
   return (
     <div className="container-fluid vh-100">
       <div className="row h-100">
@@ -85,8 +109,13 @@ function EditorPage() {
           {/* Buttons  */}
           <div className="mt-auto">
             <hr />
-            <button className="btn btn-success">Copy Room Id</button>
-            <button className="btn btn-danger mt-2 mb-2 px-3 btn-block">
+            <button onClick={copyRoomId} className="btn btn-success">
+              Copy Room Id
+            </button>
+            <button
+              onClick={leaveRoom}
+              className="btn btn-danger mt-2 mb-2 px-3 btn-block"
+            >
               Leave Room
             </button>
           </div>
@@ -94,7 +123,11 @@ function EditorPage() {
 
         {/* Editor Section */}
         <div className="col-md-10 d-flex flex-column text-light h-100">
-          <Editor socketRef={socketRef} roomId={roomId} />
+          <Editor
+            socketRef={socketRef}
+            roomId={roomId}
+            onCodeChange={(code) => (codeRef.current = code)}
+          />
         </div>
       </div>
     </div>
